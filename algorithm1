@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+
+#define V 10 // Maximum number of vertices in the graph
+
+char vertexLabels[V][2]; // Array to store vertex labels (2-character labels)
+int graph[V][V];        // The graph represented as an adjacency matrix
+int path[V];            // Array to store the current path
+bool visited[V];        // Array to keep track of visited vertices
+
+void printPath(int path[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%s", vertexLabels[path[i]]);
+        if (i < n - 1) {
+            printf(" -> ");
+        }
+    }
+    printf("\n");
+}
+
+void findPaths(int current, int destination, int count, int numVertices) {
+    path[count] = current;
+    visited[current] = true;
+
+    if (current == destination) {
+        // Print the path
+        printf("Path %d: ", count);
+        printPath(path, count + 1);
+    } else {
+        for (int v = 0; v < numVertices; v++) {
+            if (!visited[v] && graph[current][v] == 1) {
+                findPaths(v, destination, count + 1, numVertices);
+            }
+        }
+    }
+
+    // Backtrack
+    visited[current] = false;
+}
+
+int main() {
+    int numVertices;
+    printf("Enter the number of vertices (max %d): ", V);
+    scanf("%d", &numVertices);
+
+    if (numVertices <= 0 || numVertices > V) {
+        printf("Invalid number of vertices\n");
+        return 1;
+    }
+
+    printf("Enter vertex labels (2-character labels) for each vertex:\n");
+    for (int i = 0; i < numVertices; i++) {
+        printf("Label for vertex %d: ", i);
+        scanf("%s", vertexLabels[i]);
+    }
+
+    printf("Enter the connections between vertices (0 for no connection, 1 for connection):\n");
+    for (int i = 0; i < numVertices; i++) {
+        for (int j = 0; j < numVertices; j++) {
+            printf("Is there a connection between vertex %s and vertex %s? (1/0): ", vertexLabels[i], vertexLabels[j]);
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    int source, destination;
+    printf("Enter the source node (label): ");
+    char sourceLabel[3];
+    scanf("%s", sourceLabel);
+
+    printf("Enter the destination node (label): ");
+    char destinationLabel[3];
+    scanf("%s", destinationLabel);
+
+    source = -1;
+    destination = -1;
+
+    // Find the indices corresponding to the entered labels
+    for (int i = 0; i < numVertices; i++) {
+        if (strcmp(vertexLabels[i], sourceLabel) == 0) {
+            source = i;
+        }
+        if (strcmp(vertexLabels[i], destinationLabel) == 0) {
+            destination = i;
+        }
+    }
+
+    if (source == -1 || destination == -1) {
+        printf("Invalid source or destination node labels\n");
+        return 1;
+    }
+
+    printf("All Paths from %s to %s:\n", vertexLabels[source], vertexLabels[destination]);
+    for (int i = 0; i < V; i++) {
+        visited[i] = false;
+        path[i] = -1;
+    }
+
+    findPaths(source, destination, 0, numVertices);
+
+    return 0;
+}
